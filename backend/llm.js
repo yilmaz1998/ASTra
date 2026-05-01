@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import OpenAI from "openai";
 
 const openai = new OpenAI({
@@ -35,5 +38,6 @@ Return JSON:
     ],
   });
 
-  return res.choices[0].message.content;
+  const content = res.choices[0].message.content;
+  return JSON.parse(content);
 }
