@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Editor from "@monaco-editor/react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function App() {
   const [code, setCode] = useState(`function test() {
@@ -13,6 +14,7 @@ export default function App() {
 
   const analyzeCode = async () => {
     setLoading(true);
+    setResult(null);
 
     try {
       const res = await fetch(`${import.meta.env.VITE_API}/api/analyze`, {
@@ -59,28 +61,39 @@ export default function App() {
 
         {!result && <p className="text-gray-400">No analysis yet</p>}
 
-        {result && (
-          <>
-            <p>{result.summary}</p>
+        <AnimatePresence>
+          {result && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.5 }}
+            >
+              <p className="mb-4 text-green-400">
+                {result.summary}
+              </p>
 
-            {(result.explanations?.explanations || []).map((item, i) => (
-              <div
-                key={i}
-                className="mb-4 p-3 bg-gray-800 rounded"
-              >
-                <p className="text-red-400 font-bold">
-                  {item.issue} {item.line ? `(line ${item.line})` : ""}
-                </p>
-                <p className="text-sm mt-2">
-                  {item.why}
-                </p>
-                <p className="text-blue-300 mt-2">
-                  Fix: {item.fix}
-                </p>
-              </div>
-            ))}
-          </>
-        )}
-      </div>
-    </div>
+              {(result.explanations?.explanations || []).map((item, i) => (
+                <div
+                  key={i}
+                  className="mb-4 p-3 bg-gray-800 rounded"
+                >
+                  <p className="text-red-400 font-bold">
+                    {item.issue} {item.line ? `(line ${item.line})` : ""}
+                  </p>
+
+                  <p className="text-sm mt-2">
+                    {item.why}
+                  </p>
+
+                  <p className="text-blue-300 mt-2">
+                    Fix: {item.fix}
+                  </p>
+                </div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+     </div>
+  </div>
   );}
